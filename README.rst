@@ -1,32 +1,32 @@
-octopus.io 프로젝트
+octopus.io Project 
 ===================
 
-octopus.io 프로젝트는 octopus의 한글 매뉴얼을 영문화하기 위해 생성되었다.
+Octopus.io project is for octopus documentation. We use the resulting documentations for hosting the homepage of Octopus project.
 
-개요
+Summary
 -----------------
 
-이 프로젝트는 문서화 도구인 Sphinx(http://sphinx-doc.org/index.html)를 통해 문서를 생성한다. Sphinx는 reStructuredText 포맷을 사용하고, 테마는 sphinx_rtd_theme을 적용했다. 
+This project uses a document generation tool, Sphinx (http://sphinx-doc.org/index.html). Sphinx uses reStructuredText format and we apply sphinx_rtd_theme for appearance.
 
-빌드
+Build
 -----------------
 
-이 프로젝트를 빌드하는 방법은 다음과 같다.
+The build process for this project is as follows:
 
-1. sphinx를 설치하기 위해서는 먼저 easy_install을 설치해야 한다. easy_install의 설치 및 확인하는 방법은 다음과 같다.
+1. In order to install sphinx, first you need to install easy_install. You can install it and check the installation as follows (in Centos).
 
 .. code-block:: bash
 
     $ sudo yum install python-setuptools
     $ easy_install --version
 
-2. easy_install를 사용하여 Sphinx를 설치한다. 설치하는 방법은 다음과 같다.
+2. Install Sphinx using easy_install.
 
 .. code-block:: bash
 
     $ sudo easy_install -U Sphinx
 
-3. sphinx를 이용하여 빌드한다. 빌드하는 과정은 다음과 같다.
+3. Build this project using sphinx.
 
 .. code-block:: bash
 
@@ -35,7 +35,7 @@ octopus.io 프로젝트는 octopus의 한글 매뉴얼을 영문화하기 위해
     $ make html
 
 
-4. 확인은 _build/html/index.html 파일을 통해 가능하다. 확인하는 과정은 다음과 같다.
+4. You can check the build result by printing _build/html/index.html.
 
 .. code-block:: bash
 
