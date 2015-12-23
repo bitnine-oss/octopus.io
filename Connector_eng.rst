@@ -9,7 +9,6 @@ You can get the Octopus's JDBC driver from share/octopus directory which is loca
 
 Usage Octopus JDBC Driver
 --------------------------
-Octopus JDBC 드라이버를 사용할 경우 JDBC 드라이버 클래스와 연결 URL이 필요하며, 이에 대한 정보는 다음과 같다.
 When you use the Octopus JDBC Driver, you'll need the JDBC Driver class and connection URL information. See below.
 
 - JDBC Driver class information
@@ -32,7 +31,7 @@ octopus-port               Octopus instance's port number               58000
 =================== =========================================== =====================
 
 
-This is an example for using the Octopus JDBC Driver
+This is an example for using the Octopus JDBC Driver.
 
 .. code-block:: bash
 
@@ -59,17 +58,18 @@ This is an example for using the Octopus JDBC Driver
 Octopus JDBC API
 ----------------
 The Octopus support the JDBC 4.2. But the Octopus doesn't provide the commit/rollback function due to the characteristics of the Octopus and in the case of DatabaseMetaData several function is provided due to limitations of implementation.
-These are the function lists which are supported in the Octopus's ''DatabaseMetaData''
+These are the function lists which are supported in the Octopus's ''DatabaseMetaData''.
+
 .. _making-b-table:
 
-=============== ============================
+=============== ========================================
 function                description
-=============== ============================
+=============== ========================================
 getCatalogs       getting all data sources
 getColumns        getting a specific column
 getConnection     getting the current connection object
 getSchemas        getting a specific schema information
 getTables         getting a specific table information
-=============== ============================
+=============== ========================================
 
-You can get some details about result column for we've seen above in 4.4.4. Other details please refer to the Java's ''java.sql'' package documentation
+You can get some details about result column for we've seen above in 4.4.4. Other details please refer to the Java's ''java.sql'' package documentation.

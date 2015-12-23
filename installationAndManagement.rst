@@ -32,7 +32,7 @@ The Octopus is running on JVM environment, needs Hadoop and database for metadat
 
 - Hadoop
 
-  - Hadoop 2.6.0 or higher (dependent on execute time)
+  - Hadoop 2.6.0 or higher (dependent on execute time).
   - Setting Hadoop's installation directory to HADOOP_PREFIX parameter
      - Below is an example HADOOP_PREFIX parameter.
 
@@ -42,8 +42,8 @@ The Octopus is running on JVM environment, needs Hadoop and database for metadat
 
 - Database for meta store
 
-  - The Octopus can use the RDBMS that is supported by DataNucleus to meta store
-  - Adding a JDBC driver which will be used for meta store to Octopus's CLASSPATH
+  - The Octopus can use the RDBMS that is supported by DataNucleus to meta store.
+  - Adding a JDBC driver which will be used for meta store to Octopus's CLASSPATH.
      - (Adding a JDBC driver to 2.2.3's share/octopus/ext directory)
 
 If you use the source code not the binary distribution it requires additional requirements below to install the Octopus.
@@ -63,6 +63,7 @@ You can get the source code of the Octopus from the git repository below.
 https://github.com/bitnine-oss/octopus.git
 
 This guidance assumes you've got the source code of the Octopus with the following command.
+
 .. code-block:: bash
 
     $ cd
@@ -71,6 +72,7 @@ This guidance assumes you've got the source code of the Octopus with the followi
 build and installation
 ^^^^^^^^^^^^
 You can get the Octopus's binary by running the following command in the directory that store downloaded source code of the Octopus.
+
 .. code-block:: bash
 
     $ cd octopus
@@ -78,6 +80,7 @@ You can get the Octopus's binary by running the following command in the directo
 
 The binary is the file named octopus-x.y.z-SNAPSHOT.tar.gz which is located in octopus-asswmbly/target under source code's directory. The x.y.z presents version information, and the version of the time of this writing is 0.1.0.
 When you release the above binary files to desired location, the installation is complete.
+
 .. code-block:: bash
 
     $ cd
@@ -137,6 +140,7 @@ Note that if you pre-set the JAVA_HOME and HADOOP_PREFIX environment variables, 
     OCTOPUS_LOG_LEVEL=DEBUG
 
 Next the Octopus-site.xml file sets the Octopus instance.
+
 .. _making-c-table:
 
 ===============================================   =========================================================================        ==================================================================

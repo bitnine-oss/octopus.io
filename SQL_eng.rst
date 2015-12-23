@@ -164,19 +164,19 @@ The Octopus is supported only for SELECT queries across multiple data sources an
 
 **count, start**
 
-How many returns you want to get, or specify fetch some first results from (an integer of 0 or more)
+How many returns you want to get, or specify fetch some first results from (an integer of 0 or more).
 
 **withName, withColumn**
 
-Specify the WITH clause and result column's name (identifier format)
+Specify the WITH clause and result column's name (identifier format).
 
 **columnAlias, tableAlias**
 
-Specify the alias name of columns and tables (identifier format)
+Specify the alias name of columns and tables (identifier format).
 
 **dataSourceName, schemaName, tableName**
 
-Specify the datasource's, scheme's, table's name (identifier format)
+Specify the datasource's, scheme's, table's name (identifier format).
 
 - expression
 
@@ -229,7 +229,7 @@ boolean IS NOT FALSE          boolean is not false; if the boolean is UNKNOWN, i
 boolean IS TRUE               boolean is true; if the boolean is UNKNOWN, it would be false                      boolean
 boolean IS NOT TRUE           boolean is not true; if the boolean is UNKNOWN, it would be true                      boolean
 boolean IS UNKNOWN            boolean is UNKNOWN                                                                    boolean
-boolean IS NOT UNKNOWN        boolean이 UNKNOWN이 아님                                                              boolean
+boolean IS NOT UNKNOWN        boolean is not UNKNOWN                                                              boolean
 ========================== ======================================================================= ===========================
 
 Octopus Administration Statements
@@ -243,7 +243,7 @@ This chapther we explain the statement that is used in management of the Octopus
 User account
 ^^^^^^^^^^^
 
-- Creating and modifying user accounts
+- Creating and modifying user accounts.
 
 The following two sentences each create and modify the Octopus user account. The account have been created just now does not have any privileges.
 
@@ -259,7 +259,6 @@ Specify the account's name to create/modify.
 
 **password**
 
-새로운 계정의 암호 혹은 수정할 암호 지정.
 Create password of the new account or modify password of the exist account
 
 
@@ -271,7 +270,7 @@ Create password of the new account or modify password of the exist account
     
     ALTER USER "octopus" IDENTIFIED BY 'squid';
 
-- drop the user account
+- drop the user account.
 
 .. code-block:: bash
 
@@ -303,7 +302,7 @@ First, find out about the sentences that grant or revoke the system privileges.
 
 **user**
 
-The account to be granted privileges
+The account to be granted privileges.
 
 **systemPrivilege**
 
@@ -311,9 +310,9 @@ The Octopus support the privileges as below.
 
 .. _making-e-table:
 
-=============================== ====================================================
+=============================== ====================================================================
 privilege                               description
-=============================== ====================================================
+=============================== ====================================================================
 ALTER SYSTEM                      privilege for executing ALTER SYSTEM statement
 SELECT ANY TABLE                  privilege for executing SELECT statement to any table
 CREATE USER                       privilege for creating user account
@@ -323,7 +322,7 @@ COMMENT ANY                       privilege for adding comment and column catego
 GRANT ANY OBJECT PRIVILEGE        privilege for granting privilege for object
 GRANT ANY PRIVILEGE               privilege for granting privilege for system
 ALL PRIVILEGES                    all of the above system privileges
-=============================== ====================================================
+=============================== ====================================================================
 
     - example
 
@@ -414,7 +413,7 @@ Comment string to add to the target.
 
 **dataSourceName, schemaName, tableName, columnName**
 
-Specify the column to add a column category
+Specify the column to add a column category.
 
 **category**
 
@@ -430,7 +429,7 @@ SHOW statement
 ^^^^^^^^^
 In this chapter, we'll discuss about the function for retrieving user account information, scheme information, privilege information, comment and column category.
 
-- Retrieve the user account
+- Retrieve the user account.
 
 .. code-block:: bash
 
@@ -447,7 +446,7 @@ USER_NAME      VARCHAR        User account name
 REMARKS        VARCHAR        Comment added to the user account
 ============= ============== ==================================
 
-- Retrieve data source, schema, table and column
+- Retrieve data source, schema, table and column.
 
 The following statements query the data source, schema, table and column information in order.
 
@@ -567,7 +566,7 @@ TABLE_SCHEM       VARCHAR           scheme name
 PRIVILEGE         VARCHAR           granted privilege for the scheme to user account (Separated by commas)
 ============== ============== ============================================================================
 
-- Retrieve comments
+- Retrieve comments.
 
 .. code-block:: bash
 
