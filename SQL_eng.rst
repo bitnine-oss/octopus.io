@@ -1,0 +1,607 @@
+
+SQL
+===
+In this chapter, we'll explain about the SQL that is supported by the Octopus.
+
+Data Type
+----------
+Data types supported by the current Octopus is as follows.
+
+.. _making-a-table:
+
+===========  ============== ===================================================================================================
+SQL type      size(bytes)         range
+===========  ============== ===================================================================================================
+INTEGER         4                    -231 (-2,147,483,648) ~ 231 - 1 (2,147,483,647)
+BIGINT          8                    -263 (-9,223,372,036,854,775,808) ~ 263 - 1 (9,223,372,036,854,775,807)
+FLOAT           4                    -3.4E+38 ~ 3.4E+38
+REAL            4                    -3.4E+38 ~ 3.4E+38
+DOUBLE          8                    -1.7E–308 ~ 1.7E+308
+NUMERIC         -                    -
+VARCHAR         -                    -
+DATE            -                    YYYY-mm-dd
+TIMESTAMP       -                    YYYY-mm-dd HH:MM:SS[.NNNNNNNNN]
+===========  ============== ===================================================================================================
+
+Data Definition Language
+---------------------------
+ALTER SYSTEM ADD DATASOURCE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Add the data sources to be managed by the Octopus. You can add only data source that supports JDBC connection.
+
+.. code-block:: bash
+
+    ALTER SYSTEM ADD DATASOURCE "<dataSourceName>"
+      CONNECT TO '<jdbcConnectionString>'
+      USING '<jdbcDriverName>' ;
+
+**dataSourceName**
+
+Specify the name fo the data source you want to add.
+
+**jdbcConnectionString**
+
+JDBC connection Address for the data source.
+
+**jdbcDriverName**
+
+JDBC driver name for the data source connection.
+
+- example
+
+.. code-block:: bash
+
+    ALTER SYSTEM ADD DATASOURCE "spark"
+      CONNECT TO 'jdbc:hive2://localhost:10001'
+      USING 'org.apache.hive.JDBC' ;
+
+ALTER SYSTEM UPDATE DATASOURCE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If the schema information for the data source is changed that have being managed by the Octopus, apply it to the meta store of the Octopus. 
+This statement provides a variety of grammar to be updated only full data source, only specific schemes or only specific tables.
+
+.. code-block:: bash
+
+    ALTER SYSTEM UPDATE DATASOURCE "<dataSourceName>" ;
+    ALTER SYSTEM UPDATE SCHEMA "<dataSourceName>" . 'schemaPattern' ;
+    ALTER SYSTEM UPDATE TABLE "<dataSourceName>" . 'schemaPattern' . 'tablePattern' ;
+
+**dataSourceName**
+
+Specify the name fo the data source you want to update.
+
+**schemaPattern, tablePattern**
+
+Specify the schema and table pattern to be updated. The pattern is the same as in SQL's LIKE pattern.
+
+- example
+
+.. code-block:: bash
+
+    ALTER SYSTEM UPDATE DATASOURCE "spark";
+    ALTER SYSTEM UPDATE SCHEMA "spark".'div%';
+    ALTER SYSTEM UPDATE TABLE "spark".'%'.'%stat%';
+
+ALTER SYSTEM DROP DATASOURCE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Delete the data source from the meta-Store of the Octopus. You can't get schema information and query processing any more to deleted data source.
+
+.. code-block:: bash
+
+    ALTER SYSTEM DROP DATASOURCE "<dataSourceName>" ;
+
+**dataSourceName**
+
+Specify the name of the data source that you want to delete.
+
+- example
+
+.. code-block:: bash
+
+    ALTER SYSTEM DROP DATASOURCE "spark";
+
+Data Manipulation Language
+-----------------------------
+The Octopus is supported only for SELECT queries across multiple data sources and INSERT, UPDATE, DELETE is not supported. The Octopus supports the SELECT statement as follows. However, in the case of by-pass query, the Octopus can not process the grammar that is not supported by such data sources because of the nature of the Octopus.
+
+.. code-block:: bash
+
+    query:
+      [ WITH withItem { , withItem }* query ]
+    | { select
+      | query UNION [ ALL ] query
+      | query EXCEPT query
+      | query INTERSECT query
+      }
+      [ ORDER BY orderItem { , orderItem }* ]
+      [ LIMIT { <count> | ALL } ]
+      [ OFFSET <start> { ROW | ROWS } ]
+      [ FETCH { FIRST | NEXT } [ <count> ] { ROW | ROWS } ]
+    
+    withItem: <withName> [ ( <withColumn> { , <withColumn> }* ) ] AS ( query )
+    
+    orderItem: <expression> [ ASC | DESC ] [ NULLS FIRST | NULLS LAST ]
+    
+    select:
+      SELECT [ STREAM ] [ ALL | DISTINCT ]
+      { '*' | projectItem { , projectItem }* }
+      FROM tableExpression
+      [ WHERE <booleanExpression> ]
+      [ GROUP BY groupItem { , groupItem }* ]
+      [ HAVING <booleanExpression> ]
+    
+    projectItem:
+      <expression> [ [ AS ] <columnAlias> ]
+    | <tableAlias> . '*'
+    
+    tableExpression:
+      tableReference { , tableReference }*
+    | tableExpression [ NATURAL ] [ LEFT | RIGHT | FULL ] JOIN 
+      tableExpression [ joinCondition ]
+    
+    joinCondition: ON <booleanExpression> | USING ( <column> { , <column> }* )
+    
+    tableReference:
+      [ LATERAL ] tablePrimary
+      [ [ AS ] <tableAlias> [ ( <columnAlias> { , <columnAlias> }* ) ] ]
+    
+    tablePrimary:
+      [ TABLE ] [ [ <dataSourceName> . ] <schemaName> . ] <tableName>
+      | ( query )
+      | values
+      | UNNEST ( <expression> )
+      | TABLE ( [ SPECIFIC ] functionName ( <expression> { , <expression> }* ) )
+    
+    values: VALUES <expression> { , <expression> }*
+    
+    groupItem:
+      <expression>
+    | ( )
+    | ( <expression. { , expression }* )
+    | CUBE ( <expression> { , expression }* )
+    | ROLLUP ( expression { , expression }* )
+    | GROUPING SETS ( groupItem { , groupItem }* )
+
+**count, start**
+
+How many returns you want to get, or specify fetch some first results from (an integer of 0 or more)
+
+**withName, withColumn**
+
+Specify the WITH clause and result column's name (identifier format)
+
+**columnAlias, tableAlias**
+
+Specify the alias name of columns and tables (identifier format)
+
+**dataSourceName, schemaName, tableName**
+
+Specify the datasource's, scheme's, table's name (identifier format)
+
+- expression
+
+Arithmetic expressions, comparison expressions, or logical expressions can come.
+The value used in expression can get the specific column value as that column's identifier or directly input to the constant.
+The Octopus support the arithmetic expression, comparison expression like below, and you can use it in each expression.
+
+.. _making-b-table:
+
+========================= ======================================================= ===================
+arithmetic expression                    description                                     result
+========================= ======================================================= ===================
+numeric1 + numeric2           add numeric1 and numeric2                                  numeric
+numeric1 - numeric2         Subtract the numeric2 on the numeric1                        numeric
+numeric1 * numeric2           product numeric1 and numeric2                              numeric
+numeric1 / numeric2       quotient obtained by dividing the numeric1 to numeric2         numeric
+========================= ======================================================= ===================
+
+.. _making-c-table:
+
+============================ ========================================================     =================================
+comparison expression                     description                                            result
+============================ ========================================================     =================================
+value1 = value2               equal                                                              boolean
+value1 <> value2              not equal                                                          boolean
+value1 > value2               bigger                                                             boolean
+value1 >= value2              bigger or equal                                                    boolean
+value1 < value2               smaller                                                            boolean
+value1 <= value2              smaller or equal                                                   boolean
+value IS NULL                 value is NULL                                                      boolean
+value IS NOT NULL             value is not NULL                                                  boolean
+string1 LIKE string2          string1's pattern and string2's pattern are matched                boolean
+string1 NOT LIKE string2      string1's pattern and string2's pattern are not matched            boolean
+============================ ========================================================     =================================
+
+- booleanExpression (logical expression)
+
+It is an expression consisting of AND, OR combination of logic operators. In the Octopus supports below logical operators. 
+
+.. _making-d-table:
+
+========================== ======================================================================= ===========================
+operator                        description                                                                    result
+========================== ======================================================================= ===========================
+boolean1 OR boolean2          boolean1 or boolean2 is(are) true                                                boolean
+boolean1 AND boolean2         boolean2 and boolean2 are true                                                   boolean
+NOT boolean                   boolean is not true; if the boolean is UNKNOWN, it would be UNKNOWN              boolean
+boolean IS FALSE              boolean is false; if the boolean is UNKNOWN, it would be false                    boolean
+boolean IS NOT FALSE          boolean is not false; if the boolean is UNKNOWN, it would be true                  boolean
+boolean IS TRUE               boolean is true; if the boolean is UNKNOWN, it would be false                      boolean
+boolean IS NOT TRUE           boolean is not true; if the boolean is UNKNOWN, it would be true                      boolean
+boolean IS UNKNOWN            boolean is UNKNOWN                                                                    boolean
+boolean IS NOT UNKNOWN        boolean이 UNKNOWN이 아님                                                              boolean
+========================== ======================================================================= ===========================
+
+Octopus Administration Statements
+---------------------------------
+The Octopus has a user account concept.
+Also ensure that the user account has access to the specified scheme, and provides access control that allows to grant access.
+And it can also add some comments to the specific scheme information.
+Finally, it provides the ability to retrieve the various information.
+This chapther we explain the statement that is used in management of the Octopus.
+
+User account
+^^^^^^^^^^^
+
+- Creating and modifying user accounts
+
+The following two sentences each create and modify the Octopus user account. The account have been created just now does not have any privileges.
+
+.. code-block:: bash
+
+    CREATE USER "<user>" IDENTIFIED BY '<password>' ;
+    
+    ALTER USER "<user>" IDENTIFIED BY '<password>' ;
+
+**user**
+
+Specify the account's name to create/modify.
+
+**password**
+
+새로운 계정의 암호 혹은 수정할 암호 지정.
+Create password of the new account or modify password of the exist account
+
+
+    - example
+
+.. code-block:: bash
+
+    CREATE USER "octopus" IDENTIFIED BY 'bitnine';
+    
+    ALTER USER "octopus" IDENTIFIED BY 'squid';
+
+- drop the user account
+
+.. code-block:: bash
+
+    DROP USER "<user>" ;
+
+**user**
+
+Specify the account to be deleted.
+
+    - example
+
+.. code-block:: bash
+    
+    DROP USER "octopus";
+
+privileges
+^^^^
+First, find out about the sentences that grant or revoke the system privileges. 
+
+.. code-block:: bash
+
+    GRANT systemPrivileges TO grantees ;
+    
+    REVOKE systemPrivileges FROM grantees ;
+    
+    systemPrivileges: systemPrivilege { , systemPrivilege }*
+    grantees: grantee { , grantee }*
+    grantee: '<user>'
+
+**user**
+
+The account to be granted privileges
+
+**systemPrivilege**
+
+The Octopus support the privileges as below.
+
+.. _making-e-table:
+
+=============================== ====================================================
+privilege                               description
+=============================== ====================================================
+ALTER SYSTEM                      privilege for executing ALTER SYSTEM statement
+SELECT ANY TABLE                  privilege for executing SELECT statement to any table
+CREATE USER                       privilege for creating user account
+ALTER USER                        privilege for modifying user account
+DROP USER                         privilege for deleting user account
+COMMENT ANY                       privilege for adding comment and column category to any target
+GRANT ANY OBJECT PRIVILEGE        privilege for granting privilege for object
+GRANT ANY PRIVILEGE               privilege for granting privilege for system
+ALL PRIVILEGES                    all of the above system privileges
+=============================== ====================================================
+
+    - example
+
+.. code-block:: bash
+
+
+    GRANT ALTER SYSTEM, CREATE USER, DROP USER TO "octopus", "admin";
+    
+    REVOKE ALTER SYSTEM FROM "octopus";
+
+Next, find out about the sentences to grant or revoke the object privilege.
+
+.. code-block:: bash
+    
+    GRANT objectPrivileges ON object TO grantees ;
+    
+    REVOKE objectPrivileges ON object FROM grantees ;
+    
+    objectPrivileges: objectPrivilege { , objectPrivilege }*
+    object: "<dataSourceName>" . "<schemaName>"
+
+**dataSourceName, schemaName**
+
+The limited privileges for the specified scheme.
+
+**objectPrivilege**
+
+The Octopus provides object privileges as below.
+
+.. _making-f-table:
+
+===================== =============================================================================================================
+privilege                   description
+===================== =============================================================================================================
+SELECT                 privilege for executing SELECT statement to table that is in specified scheme
+COMMENT                privilege for adding comments and column category to table and column that is in specified scheme
+ALL [ PRIVILEGES ]     all of the above system privileges
+===================== =============================================================================================================
+
+    - example
+
+.. code-block:: bash
+
+    GRANT ALL ON "spark"."default" TO "anon";
+    
+    REVOKE COMMENT ON "spark"."default" FROM "anon";
+
+comment and column category
+^^^^^^^^^^^^^^^^^
+The Octopus provides the function that can add comments on many data sources, schemas, tables, columns, user accounts for the conviniece of managing them. And also provides adding comments for column category that represent what is the contents of the column. And you can retrieve by using comments and column category that was added by user. First, we'll discuss the statements for adding comment or column category, and we'll discuss again the SHOW statements for retrieving in 4.4.4.
+
+
+- add comment
+
+.. code-block:: bash
+
+    COMMENT ON target IS '<comment>' ;
+    Target: DATASOURCE "<dataSourceName>"
+           | SCHEMA "<dataSourceName>" . "<schemaName>"
+           | TABLE "<dataSourceName>" . "<schemaName>" . "<tableName>"
+           | COLUMN "<dataSourceName>" . "<schemaName>" . "<tableName>" .
+                      "<columnName>"
+           | USER "<user>"
+
+**dataSourceName, schemaName, tableName, columnName, user**
+
+Specify the data source, scheme, table, column and user account to be comment added.
+
+**comment**
+
+Comment string to add to the target.
+
+    - example
+
+.. code-block:: bash
+
+    COMMENT ON USER "octopus" IS 'super user';
+    COMMENT ON TABLE "spark"."default"."stat" IS 'basic statistics';
+
+- add the column category
+
+.. code-block:: bash
+
+    SET DATACATEGORY
+      ON COLUMN "<dataSourceName>" . "<schemaName>" . "<tableName>" .
+                  "<columnName>"
+      IS '<category>' ;
+
+**dataSourceName, schemaName, tableName, columnName**
+
+Specify the column to add a column category
+
+**category**
+
+Column category string.
+
+    - example
+
+.. code-block:: bash
+
+    SET DATACATEGORY ON COLUMN "spark"."account"."vip"."ssn" IS 'private';
+
+SHOW statement
+^^^^^^^^^
+In this chapter, we'll discuss about the function for retrieving user account information, scheme information, privilege information, comment and column category.
+
+- Retrieve the user account
+
+.. code-block:: bash
+
+    SHOW ALL USERS ;
+
+Result column is like below.
+
+.. _making-g-table:
+
+============= ============== ==================================
+name             type              description
+============= ============== ==================================
+USER_NAME      VARCHAR        User account name
+REMARKS        VARCHAR        Comment added to the user account
+============= ============== ==================================
+
+- Retrieve data source, schema, table and column
+
+The following statements query the data source, schema, table and column information in order.
+
+.. code-block:: bash
+
+    SHOW DATASOURCES ;
+    
+    SHOW SCHEMAS [ DATASOURCE "<dataSourceName>" ] [ SCHEMA <schemaPattern> ] ;
+    
+    SHOW TABLES [ DATASOURCE "<dataSourceName>" ] [ SCHEMA '<schemaPattern>' ]
+                  [ TABLE '<tablePattern>' ] ;
+    
+    SHOW COLUMNS [ DATASOURCE "<dataSourceName>" ] [ SCHEMA '<schemaPattern>' ]
+                   [ TABLE '<tablePattern>' ] [ COLUMN '<columnPattern>' ] ;
+
+**dataSourceName**
+
+Data source name to retrieve information.
+
+**schemaPattern, tablePattern, columnPattern**
+
+Specify the particular schema, table, column pattern to retrieve information. The pattern is the same as SQL's LIKE pattern and if you omit all of the targets will be retrieved.
+
+    - example
+
+.. code-block:: bash
+
+    SHOW TABLES DATASOURCE "spark" TABLE '%stat%';
+
+The results columns to the data source are as follows.
+
+.. _making-h-table:
+
+=========== ============= ================================
+name             type          description
+=========== ============= ================================
+TABLE_CAT      VARCHAR     data source name
+REMARKS        VARCHAR     comment added to a data source
+=========== ============= ================================
+
+The results columns to the scheme are as follows.
+
+.. _making-j-table:
+
+==================== ============ ====================================
+name                   type             description
+==================== ============ ====================================
+TABLE_SCHEM          VARCHAR         schema name
+TABLE_CATALOG        VARCHAR         data source name
+REMARKS              VARCHAR         comment added to the scheme
+TABLE_CAT_REMARKS    VARCHAR         comment added to the data source
+==================== ============ ====================================
+
+The results columns to the table are as follows.
+
+.. _making-k-table:
+
+====================== =========== =======================================
+name                      type                description
+====================== =========== =======================================
+TABLE_CAT                VARCHAR        data source name
+TABLE_SCHEM              VARCHAR        scheme name
+TABLE_NAME               VARCHAR        table name
+TABLE_TYPE               VARCHAR        table type (TABLE, VIEW)
+REMARKS                  VARCHAR        comment added to the table
+TABLE_CAT_REMARKS        VARCHAR        comment added to the data source
+TABLE_SCHEM_REMARKS      VARCHAR        comment added to the schema
+====================== =========== =======================================
+
+The results columns to the column are as follows. 
+
+.. _making-l-table:
+
+
+======================= =============== =====================================
+name                         type                description
+======================= =============== =====================================
+TABLE_CAT                  VARCHAR           data source name
+TABLE_SCHEM                VARCHAR           scheme name
+TABLE_NAME                 VARCHAR           table name
+COLUMN_NAME                VARCHAR           column name
+DATA_TYPE                  VARCHAR           column's SQL type (integer)
+TYPE_NAME                  VARCHAR           type name
+REMARKS                    VARCHAR           comment added to the column
+DATA_CATEGORY              VARCHAR           column category
+TABLE_CAT_REMARKS          VARCHAR           comment added to the data source
+TABLE_SCHEM_REMARKS        VARCHAR           comment added to the scheme
+TABLE_NAME_REMARKS         VARCHAR           comment added to the table
+======================= =============== =====================================
+
+- Retrieve the privilege for the scheme that is granted to user account.
+
+.. code-block:: bash
+
+    SHOW OBJECT PRIVILEGES FOR '<user>' ;
+
+**user**
+
+The target user account to retrieve the privilege.
+
+    - example
+
+.. code-block:: bash
+
+    SHOW OBJECT PRIVILEGES FOR "octopus";
+
+The results columns are as follows. 
+
+.. _making-m-table:
+
+
+============== ============== ============================================================================
+name                type                   description
+============== ============== ============================================================================
+TABLE_CAT         VARCHAR           data source name 
+TABLE_SCHEM       VARCHAR           scheme name
+PRIVILEGE         VARCHAR           granted privilege for the scheme to user account (Separated by commas)
+============== ============== ============================================================================
+
+- Retrieve comments
+
+.. code-block:: bash
+
+    SHOW COMMENTS [ '<commentPattern>' }
+      [ DATASOURCE '<dataSourcePattern>' ] [ SCHEMA '<schemaPattern>' ]
+      [ TABLE '<tablePattern>' ] [ COLUMN '<columnPattern>' ] ;
+
+**commentPattern**
+
+Specify the comment of the pattern to be queried.
+
+**dataSourcePattern, schemaPattern, tablePattern, columnPattern**
+
+Specify the pattern of the particular data source, scheme, table and column. The pattern is the same as SQL's LIKE pattern and if you omit all of the targets will be retrieved.
+    - example
+
+.. code-block:: bash
+
+    SHOW COMMENTS '%average%' DATASOURCE 'spark' TABLE '%stat%';
+
+The results columns are as follows.
+
+.. _making-n-table:
+
+======================= ============ ===============================================================
+name                       type             description
+======================= ============ ===============================================================
+OBJECT_TYPE             VARCHAR          depending on the destination CATALOG, SCHEMA, TABLE, COLUMN
+TABLE_CAT               VARCHAR          data source name
+TABLE_SCHEM             VARCHAR          scheme name
+TABLE_NAME              VARCHAR          table name
+COLUMN_NAME             VARCHAR          column name
+TABLE_CAT_REMARKS       VARCHAR          comment added to the data source
+TABLE_SCHEM_REMARKS     VARCHAR          comment added to the scheme
+TABLE_NAME_REMARKS      VARCHAR          comment added to the table
+COLUMN_NAME_REMARKS     VARCHAR          comment added to the column
+======================= ============ ===============================================================
